@@ -6,6 +6,37 @@
     <script type="module" src="popup.js"></script>
 </head>
 <body>
-    <strong>Hello World!</strong>
+    <div id="login-view" class="view">
+        <h2>Download Station</h2>
+        <form id="login-form">
+            <div class="url-row">
+                <input type="text" id="url" value="http://" required>
+                <span class="port-separator">:</span>
+                <input type="text" id="port" value="5000" class="port-input">
+            </div>
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit" id="login-btn">Connect</button>
+        </form>
+        <p id="error" class="error"></p>
+    </div>
+
+    <div id="connected-view" class="view hidden">
+        <div class="header">
+            <h2>Download Station</h2>
+            <button id="refresh-btn" class="icon-btn" title="Refresh">↻</button>
+        </div>
+        <p class="status">Connected as <span id="connected-user"></span></p>
+        <p class="server" id="connected-server"></p>
+
+        <div id="downloads-section">
+            <h3>Active Downloads</h3>
+            <div id="downloads-list">
+                <p class="loading">Loading...</p>
+            </div>
+        </div>
+
+        <button id="logout-btn">Disconnect</button>
+    </div>
 </body>
 </html>

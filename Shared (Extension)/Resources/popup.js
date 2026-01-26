@@ -9,6 +9,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     const connectedServer = document.getElementById('connected-server');
     const downloadsList = document.getElementById('downloads-list');
 
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+        });
+    });
+
     // Check if already connected
     const stored = await browser.storage.local.get(['synologyUrl', 'username', 'sid']);
 
@@ -142,24 +152,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             else if (status === 'paused') progressClass = 'paused';
             else if (status === 'error') progressClass = 'error';
 
-            let statusClass = status;
-            let statusText = status.charAt(0).toUpperCase() + status.slice(1);
+            let metaText = `${progress}%`;
             if (status === 'downloading' && speed > 0) {
-                statusText += ` (${formatSpeed(speed)})`;
+                metaText = `${formatSpeed(speed)}`;
+            } else if (status === 'seeding') {
+                metaText = 'Seeding';
+            } else if (status === 'paused') {
+                metaText = 'Paused';
+            } else if (status === 'error') {
+                metaText = 'Error';
             }
 
             return `
                 <div class="download-item">
                     <div class="download-name">${escapeHtml(name)}</div>
-                    <div class="download-progress">
+                    <div class="download-row">
                         <div class="progress-bar">
                             <div class="progress-fill ${progressClass}" style="width: ${progress}%"></div>
                         </div>
-                        <span>${progress}%</span>
-                    </div>
-                    <div class="download-info">
-                        <span class="download-status ${statusClass}">${statusText}</span>
-                        <span>${formatSize(downloaded)} / ${formatSize(size)}</span>
+                        <span class="download-meta ${status}">${metaText}</span>
                     </div>
                 </div>
             `;

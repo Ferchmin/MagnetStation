@@ -14,19 +14,11 @@ h2 {
     font-size: 16px;
 }
 
-h3 {
-    margin: 15px 0 10px 0;
-    font-size: 13px;
-    color: #888;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .icon-btn {
@@ -42,6 +34,51 @@ h3 {
     opacity: 0.7;
 }
 
+/* Tabs */
+.tabs {
+    display: flex;
+    gap: 0;
+    margin: 12px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #ddd;
+}
+
+.tab {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    background: #f5f5f5;
+    font-size: 13px;
+    cursor: pointer;
+    color: #666;
+}
+
+.tab:not(:last-child) {
+    border-right: 1px solid #ddd;
+}
+
+.tab.active {
+    background: #007aff;
+    color: white;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.coming-soon {
+    text-align: center;
+    color: #888;
+    font-size: 13px;
+    padding: 20px 0;
+}
+
+/* Views */
 .view {
     display: block;
 }
@@ -50,6 +87,7 @@ h3 {
     display: none;
 }
 
+/* Form */
 form {
     display: flex;
     flex-direction: column;
@@ -91,10 +129,10 @@ input:focus {
 }
 
 button {
-    padding: 10px;
+    padding: 8px 12px;
     border: none;
     border-radius: 6px;
-    font-size: 14px;
+    font-size: 13px;
     cursor: pointer;
     background: #007aff;
     color: white;
@@ -109,10 +147,32 @@ button:disabled {
     cursor: not-allowed;
 }
 
+/* Connection info */
+.connection-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    background: #f5f5f5;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.connection-text {
+    font-size: 11px;
+    color: #666;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    margin-right: 10px;
+}
+
 #logout-btn {
     background: #ff3b30;
-    margin-top: 15px;
-    width: 100%;
+    padding: 5px 10px;
+    font-size: 11px;
+    flex-shrink: 0;
 }
 
 #logout-btn:hover {
@@ -126,28 +186,10 @@ button:disabled {
     text-align: center;
 }
 
-.status {
-    text-align: center;
-    margin: 0;
-    font-size: 14px;
-}
-
-.server {
-    text-align: center;
-    font-size: 12px;
-    color: #888;
-    margin: 5px 0 0 0;
-    word-break: break-all;
-}
-
-#connected-user {
-    font-weight: bold;
-}
-
 /* Downloads section */
 #downloads-section {
-    margin-top: 10px;
     border-top: 1px solid #eee;
+    padding-top: 8px;
 }
 
 #downloads-list {
@@ -158,12 +200,13 @@ button:disabled {
 .loading, .empty {
     text-align: center;
     color: #888;
-    font-size: 13px;
-    padding: 15px 0;
+    font-size: 12px;
+    padding: 12px 0;
 }
 
+/* Compact download items */
 .download-item {
-    padding: 10px 0;
+    padding: 6px 0;
     border-bottom: 1px solid #eee;
 }
 
@@ -172,16 +215,16 @@ button:disabled {
 }
 
 .download-name {
-    font-size: 13px;
-    margin-bottom: 5px;
+    font-size: 12px;
+    margin-bottom: 4px;
     word-break: break-word;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
 
-.download-progress {
+.download-row {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -189,16 +232,16 @@ button:disabled {
 
 .progress-bar {
     flex: 1;
-    height: 6px;
+    height: 4px;
     background: #eee;
-    border-radius: 3px;
+    border-radius: 2px;
     overflow: hidden;
 }
 
 .progress-fill {
     height: 100%;
     background: #007aff;
-    border-radius: 3px;
+    border-radius: 2px;
     transition: width 0.3s;
 }
 
@@ -214,32 +257,25 @@ button:disabled {
     background: #ff3b30;
 }
 
-.download-info {
-    font-size: 11px;
+.download-meta {
+    font-size: 10px;
     color: #888;
-    display: flex;
-    justify-content: space-between;
-    margin-top: 4px;
+    white-space: nowrap;
 }
 
-.download-status {
-    font-size: 11px;
-    color: #888;
-}
-
-.download-status.downloading {
+.download-meta.downloading {
     color: #007aff;
 }
 
-.download-status.seeding {
+.download-meta.seeding {
     color: #34c759;
 }
 
-.download-status.paused {
+.download-meta.paused {
     color: #ff9500;
 }
 
-.download-status.error {
+.download-meta.error {
     color: #ff3b30;
 }
 
@@ -248,6 +284,29 @@ button:disabled {
         --input-bg: #2c2c2e;
         --input-color: #fff;
         border-color: #555;
+    }
+
+    .tabs {
+        border-color: #444;
+    }
+
+    .tab {
+        background: #2c2c2e;
+        color: #999;
+        border-color: #444;
+    }
+
+    .tab.active {
+        background: #007aff;
+        color: white;
+    }
+
+    .connection-info {
+        background: #2c2c2e;
+    }
+
+    .connection-text {
+        color: #999;
     }
 
     #downloads-section {

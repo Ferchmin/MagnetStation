@@ -8,16 +8,29 @@
 <body>
     <div id="login-view" class="view">
         <h2>Download Station</h2>
-        <form id="login-form">
-            <div class="url-row">
-                <input type="text" id="url" value="http://" required>
-                <span class="port-separator">:</span>
-                <input type="text" id="port" value="5000" class="port-input">
-            </div>
-            <input type="text" id="username" placeholder="Username" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <button type="submit" id="login-btn">Connect</button>
-        </form>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="local">Local</button>
+            <button class="tab" data-tab="quickconnect">QuickConnect</button>
+        </div>
+
+        <div id="local-tab" class="tab-content active">
+            <form id="login-form">
+                <div class="url-row">
+                    <input type="text" id="url" value="http://" required>
+                    <span class="port-separator">:</span>
+                    <input type="text" id="port" value="5000" class="port-input">
+                </div>
+                <input type="text" id="username" placeholder="Username" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit" id="login-btn">Connect</button>
+            </form>
+        </div>
+
+        <div id="quickconnect-tab" class="tab-content">
+            <p class="coming-soon">Coming soon</p>
+        </div>
+
         <p id="error" class="error"></p>
     </div>
 
@@ -26,17 +39,17 @@
             <h2>Download Station</h2>
             <button id="refresh-btn" class="icon-btn" title="Refresh">↻</button>
         </div>
-        <p class="status">Connected as <span id="connected-user"></span></p>
-        <p class="server" id="connected-server"></p>
+
+        <div class="connection-info">
+            <span class="connection-text"><span id="connected-user"></span> · <span id="connected-server"></span></span>
+            <button id="logout-btn">Disconnect</button>
+        </div>
 
         <div id="downloads-section">
-            <h3>Active Downloads</h3>
             <div id="downloads-list">
                 <p class="loading">Loading...</p>
             </div>
         </div>
-
-        <button id="logout-btn">Disconnect</button>
     </div>
 </body>
 </html>

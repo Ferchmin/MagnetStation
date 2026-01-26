@@ -87,7 +87,7 @@ function showBadge(state) {
             color = "#888888";
             browser.action.setBadgeText({ text: text });
             browser.action.setBadgeBackgroundColor({ color: color });
-            return; // Don't clear loading state automatically
+            return;
         case "success":
             text = "✓";
             color = "#34c759";

@@ -155,7 +155,7 @@ button:disabled {
     padding: 8px 10px;
     background: #f5f5f5;
     border-radius: 6px;
-    margin-bottom: 10px;
+    margin-top: 10px;
 }
 
 .connection-text {
@@ -188,8 +188,7 @@ button:disabled {
 
 /* Downloads section */
 #downloads-section {
-    border-top: 1px solid #eee;
-    padding-top: 8px;
+    margin-top: 8px;
 }
 
 #downloads-list {
@@ -307,10 +306,6 @@ button:disabled {
 
     .connection-text {
         color: #999;
-    }
-
-    #downloads-section {
-        border-top-color: #333;
     }
 
     .download-item {

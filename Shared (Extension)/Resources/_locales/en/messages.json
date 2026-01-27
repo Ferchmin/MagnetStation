@@ -1,10 +1,10 @@
 {
     "extension_name": {
-        "message": "DownloadStation",
+        "message": "Magnet Station",
         "description": "The display name for the extension."
     },
     "extension_description": {
-        "message": "This is DownloadStation. You should tell us what your extension does here.",
+        "message": "Send magnet links to your Synology Download Station",
         "description": "Description of what the extension does."
     }
 }

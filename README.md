@@ -1,12 +1,12 @@
-# Download Station for Safari
+# Magnet Station
 
-A Safari extension to add magnet links directly to your Synology Download Station.
+A Safari extension to send magnet links directly to your Synology Download Station.
 
 ## Features
 
 - Click any magnet link to automatically add it to Download Station
 - View active downloads with progress bars
-- Visual feedback on the extension icon (loading/success/error)
+- Visual feedback on the extension icon
 
 ## Setup
 

@@ -28,7 +28,17 @@
         </div>
 
         <div id="quickconnect-tab" class="tab-content">
-            <p class="coming-soon">Coming soon</p>
+            <form id="qc-form">
+                <input type="text" id="qc-id" placeholder="QuickConnect ID" required>
+                <input type="text" id="qc-username" placeholder="Username" required>
+                <input type="password" id="qc-password" placeholder="Password" required>
+                <button type="submit" id="qc-btn">Connect</button>
+            </form>
+            <div id="qc-progress" class="progress-steps hidden">
+                <div class="step" data-step="resolve">Resolving QuickConnect...</div>
+                <div class="step" data-step="ping">Finding best server...</div>
+                <div class="step" data-step="auth">Authenticating...</div>
+            </div>
         </div>
 
         <p id="error" class="error"></p>

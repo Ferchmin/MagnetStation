@@ -83,34 +83,81 @@ document.addEventListener('DOMContentLoaded', async () => {
         resetProgressSteps();
 
         try {
-            // Step 1: Resolve QuickConnect
+            // Step 1: Resolve QuickConnect to get server info
             setStepActive('resolve');
             const serverInfo = await resolveQuickConnect(qcId);
             setStepDone('resolve');
 
-            // Step 2: Find best server
+            // Step 2: Try to find a working server
             setStepActive('ping');
-            const url = await findWorkingServer(serverInfo);
-            if (!url) {
-                throw new Error('Could not connect to NAS');
+            let url = null;
+            let sid = null;
+
+            // Build list of URLs to try
+            const candidates = [];
+            const srv = serverInfo.server;
+            const service = serverInfo.service;
+
+            // LAN IPs first (fastest)
+            if (srv?.interface) {
+                for (const iface of srv.interface) {
+                    if (iface.ip) {
+                        candidates.push(`https://${iface.ip}:5001`);
+                        candidates.push(`http://${iface.ip}:5000`);
+                    }
+                }
             }
+
+            // DDNS hostname
+            if (srv?.ddns) {
+                const port = service?.ext_port || 5001;
+                candidates.push(`https://${srv.ddns}:${port}`);
+            }
+
+            // External IP
+            if (srv?.external?.ip) {
+                const port = srv.external.port || service?.ext_port || 5001;
+                candidates.push(`https://${srv.external.ip}:${port}`);
+            }
+
+            // QuickConnect relay URL (works but slower)
+            candidates.push(`https://${qcId}.quickconnect.to`);
+
+            console.log('Trying servers:', candidates);
             setStepDone('ping');
 
-            // Step 3: Authenticate
+            // Step 3: Try to authenticate with each server
             setStepActive('auth');
-            const sid = await authenticate(url, username, password);
+            const errors = [];
+
+            for (const candidate of candidates) {
+                try {
+                    console.log('Trying to authenticate with:', candidate);
+                    sid = await authenticate(candidate, username, password);
+                    if (sid) {
+                        url = candidate;
+                        break;
+                    }
+                } catch (e) {
+                    console.log('Auth failed for', candidate, ':', e.message);
+                    errors.push(`${candidate}: ${e.message}`);
+                }
+            }
+
+            if (!sid) {
+                throw new Error('Could not connect:\n' + errors.join('\n'));
+            }
+
             setStepDone('auth');
 
-            if (sid) {
-                await browser.storage.local.set({
-                    synologyUrl: url,
-                    username: username,
-                    sid: sid,
-                    quickConnectId: qcId
-                });
-                showConnectedView(username, qcId);
-                loadDownloads(url, sid);
-            }
+            await browser.storage.local.set({
+                synologyUrl: url,
+                username: username,
+                sid: sid,
+                quickConnectId: qcId
+            });
+            showConnectedView(username, qcId);
+            loadDownloads(url, sid);
         } catch (err) {
             console.error('QuickConnect error:', err);
             setCurrentStepError();
@@ -152,60 +199,47 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // QuickConnect resolution
+    // QuickConnect resolution - uses background script to avoid CORS
     async function resolveQuickConnect(qcId) {
-        const servers = [
-            'https://global.quickconnect.to/Serv.php',
-            'https://us.quickconnect.to/Serv.php',
-            'https://eu.quickconnect.to/Serv.php'
-        ];
+        const response = await browser.runtime.sendMessage({
+            type: 'resolveQuickConnect',
+            qcId: qcId
+        });
 
-        for (const server of servers) {
-            try {
-                const response = await fetch(server, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        version: 1,
-                        command: 'get_server_info',
-                        serverID: qcId,
-                        stop_when_error: false
-                    })
-                });
+        console.log('resolveQuickConnect response:', response);
 
-                const data = await response.json();
-                console.log('QuickConnect response:', data);
-
-                if (data.errno === 0) {
-                    return data;
-                }
-            } catch (e) {
-                console.log('Server failed:', server, e);
-            }
+        if (!response) {
+            throw new Error('No response from background script');
         }
 
-        throw new Error('QuickConnect ID not found');
+        if (response.error) {
+            throw new Error(response.error);
+        }
+
+        return response.data;
     }
 
     // Find a working server from QuickConnect response
-    async function findWorkingServer(serverInfo) {
+    async function findWorkingServer(serverInfo, qcId) {
         const candidates = [];
         const srv = serverInfo.server;
         const service = serverInfo.service;
 
-        // Add LAN IPs (highest priority when on local network)
+        console.log('Server info:', JSON.stringify(serverInfo, null, 2));
+
+        // Add LAN IPs first (fastest when on local network)
         if (srv?.interface) {
             for (const iface of srv.interface) {
                 if (iface.ip) {
-                    const port = service?.port || 5000;
-                    candidates.push(`http://${iface.ip}:${port}`);
+                    candidates.push(`https://${iface.ip}:5001`);
+                    candidates.push(`http://${iface.ip}:5000`);
                 }
             }
         }
 
         // Add DDNS hostname
         if (srv?.ddns) {
-            const port = service?.ext_port || service?.port || 5001;
+            const port = service?.ext_port || 5001;
             candidates.push(`https://${srv.ddns}:${port}`);
         }
 
@@ -221,47 +255,104 @@ document.addEventListener('DOMContentLoaded', async () => {
             candidates.push(`https://${serverInfo.service.relay_ip}:${port}`);
         }
 
+        // Add direct QuickConnect relay URL last (works but slower)
+        if (qcId) {
+            candidates.push(`https://${qcId}.quickconnect.to`);
+        }
+
         console.log('Trying servers:', candidates);
 
-        // Try each candidate
+        if (candidates.length === 0) {
+            throw new Error('No server candidates found in QuickConnect response');
+        }
+
+        const errors = [];
+
+        // Try each candidate with a simple ping to webapi
         for (const url of candidates) {
             try {
-                const testUrl = `${url}/webapi/query.cgi?api=SYNO.API.Info&version=1&method=query&query=SYNO.API.Auth`;
+                console.log('Testing:', url);
+                // Use entry.cgi which is more reliable than query.cgi
+                const testUrl = `${url}/webapi/entry.cgi?api=SYNO.API.Info&version=1&method=query`;
                 const controller = new AbortController();
                 const timeout = setTimeout(() => controller.abort(), 5000);
 
-                const response = await fetch(testUrl, { signal: controller.signal });
+                const response = await fetch(testUrl, {
+                    signal: controller.signal,
+                    redirect: 'follow'
+                });
                 clearTimeout(timeout);
 
-                const data = await response.json();
-                if (data.success) {
+                // If we get any response, try to check if it's a valid Synology API
+                const text = await response.text();
+                console.log('Response from', url, ':', text.substring(0, 200));
+
+                // Check if response contains Synology API markers
+                if (text.includes('"success"') || text.includes('SYNO.')) {
                     console.log('Found working server:', url);
                     return url;
                 }
+
+                // For quickconnect.to URLs, they redirect - check if we got redirected to a real server
+                if (response.url && response.url !== testUrl && !response.url.includes('quickconnect.to')) {
+                    // Extract base URL from redirect
+                    const redirectUrl = new URL(response.url);
+                    const baseUrl = `${redirectUrl.protocol}//${redirectUrl.host}`;
+                    console.log('Got redirect to:', baseUrl);
+                    return baseUrl;
+                }
+
+                errors.push(`${url}: Invalid response`);
             } catch (e) {
-                console.log('Server unreachable:', url);
+                console.log('Server unreachable:', url, e.message);
+                errors.push(`${url}: ${e.message || 'unreachable'}`);
             }
         }
 
-        return null;
+        throw new Error('All servers failed:\n' + errors.join('\n'));
     }
 
     // Authenticate with Synology
     async function authenticate(url, username, password) {
         const loginUrl = `${url}/webapi/entry.cgi?api=SYNO.API.Auth&version=7&method=login&account=${encodeURIComponent(username)}&passwd=${encodeURIComponent(password)}&session=DownloadStation&format=sid`;
 
-        const response = await fetch(loginUrl);
-        const data = await response.json();
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 10000);
 
-        if (data.success && data.data.sid) {
-            return data.data.sid;
-        } else {
-            const errorCode = data.error?.code;
-            if (errorCode === 400) throw new Error('Invalid username or password');
-            else if (errorCode === 401) throw new Error('Account disabled');
-            else if (errorCode === 402) throw new Error('Permission denied');
-            else if (errorCode === 403) throw new Error('2FA required (not supported)');
-            else throw new Error('Authentication failed');
+        try {
+            const response = await fetch(loginUrl, {
+                signal: controller.signal,
+                redirect: 'follow'
+            });
+            clearTimeout(timeout);
+
+            const text = await response.text();
+            console.log('Auth response from', url, ':', text.substring(0, 300));
+
+            // Try to parse as JSON
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                throw new Error('Not a Synology API response');
+            }
+
+            if (data.success && data.data?.sid) {
+                return data.data.sid;
+            } else {
+                const errorCode = data.error?.code;
+                if (errorCode === 400) throw new Error('Invalid username or password');
+                else if (errorCode === 401) throw new Error('Account disabled');
+                else if (errorCode === 402) throw new Error('Permission denied');
+                else if (errorCode === 403) throw new Error('2FA required (not supported)');
+                else throw new Error(`Auth error ${errorCode || 'unknown'}`);
+            }
+        } catch (e) {
+            clearTimeout(timeout);
+            if (e.name === 'AbortError') {
+                throw new Error('Connection timeout');
+            }
+            throw e;
         }
     }
 

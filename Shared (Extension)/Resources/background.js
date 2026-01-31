@@ -3,8 +3,94 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     if (request.magnet) {
         addMagnetToSynology(request.magnet);
+        return false;
     }
+
+    if (request.type === 'resolveQuickConnect') {
+        // Return a Promise for Safari compatibility
+        return resolveQuickConnect(request.qcId);
+    }
+
+    return false;
 });
+
+async function resolveQuickConnect(qcId) {
+    const servers = [
+        'https://global.quickconnect.to/Serv.php'
+    ];
+
+    const errors = [];
+
+    for (const server of servers) {
+        try {
+            console.log('Trying QuickConnect server:', server, 'with ID:', qcId);
+
+            // Step 1: Get server info
+            const response = await fetch(server, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    version: 1,
+                    command: 'get_server_info',
+                    id: 'dsm_portal_https',
+                    serverID: qcId,
+                    stop_when_error: false
+                })
+            });
+
+            if (!response.ok) {
+                errors.push(`${server}: HTTP ${response.status}`);
+                continue;
+            }
+
+            const data = await response.json();
+            console.log('QuickConnect response:', JSON.stringify(data, null, 2));
+
+            if (data.errno === 0) {
+                return { data: data };
+            }
+
+            // If errno 4, we need to follow the sites array
+            if (data.errno === 4 && data.sites && data.sites.length > 0) {
+                console.log('Following redirect to regional server:', data.sites);
+                for (const site of data.sites) {
+                    try {
+                        const regionalUrl = `https://${site}/Serv.php`;
+                        console.log('Trying regional server:', regionalUrl);
+
+                        const regionalResponse = await fetch(regionalUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                version: 1,
+                                command: 'get_server_info',
+                                id: 'dsm_portal_https',
+                                serverID: qcId,
+                                stop_when_error: false
+                            })
+                        });
+
+                        const regionalData = await regionalResponse.json();
+                        console.log('Regional response:', JSON.stringify(regionalData, null, 2));
+
+                        if (regionalData.errno === 0) {
+                            return { data: regionalData };
+                        }
+                    } catch (e) {
+                        console.error('Regional server failed:', site, e);
+                    }
+                }
+            }
+
+            errors.push(`${server}: errno ${data.errno} - ${data.errinfo || JSON.stringify(data)}`);
+        } catch (e) {
+            console.error('QuickConnect server failed:', server, e);
+            errors.push(`${server}: ${e.message || e.toString()}`);
+        }
+    }
+
+    return { error: errors.join('\n') || 'All servers failed' };
+}
 
 async function addMagnetToSynology(magnetUrl) {
     try {

@@ -2,11 +2,18 @@
     color-scheme: light dark;
 }
 
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 body {
-    width: 300px;
+    min-width: 280px;
+    max-width: 400px;
+    width: 100%;
     padding: 15px;
     margin: 0;
     font-family: system-ui;
+    box-sizing: border-box;
 }
 
 h2 {

@@ -437,8 +437,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             return `
-                <div class="download-item">
-                    <div class="download-name">${escapeHtml(name)}</div>
+                <div class="download-item" data-task-id="${task.id}">
+                    <div class="download-header">
+                        <div class="download-name">${escapeHtml(name)}</div>
+                        <button class="delete-btn" title="Remove">×</button>
+                    </div>
                     <div class="download-row">
                         <div class="progress-bar">
                             <div class="progress-fill ${progressClass}" style="width: ${progress}%"></div>
@@ -448,6 +451,38 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
             `;
         }).join('');
+
+        // Add click handlers for delete buttons
+        downloadsList.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const item = btn.closest('.download-item');
+                const taskId = item.dataset.taskId;
+                if (taskId) {
+                    await deleteTask(taskId);
+                }
+            });
+        });
+    }
+
+    async function deleteTask(taskId) {
+        try {
+            const stored = await browser.storage.local.get(['synologyUrl', 'sid']);
+            if (!stored.synologyUrl || !stored.sid) return;
+
+            const url = `${stored.synologyUrl}/webapi/DownloadStation/task.cgi?api=SYNO.DownloadStation.Task&version=1&method=delete&id=${encodeURIComponent(taskId)}&_sid=${stored.sid}`;
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data.success) {
+                // Refresh the list
+                await loadDownloads(stored.synologyUrl, stored.sid);
+            } else {
+                console.error('Failed to delete task:', data);
+            }
+        } catch (err) {
+            console.error('Delete task error:', err);
+        }
     }
 
     function formatSize(bytes) {

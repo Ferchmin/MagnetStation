@@ -21,8 +21,8 @@
                     <span class="port-separator">:</span>
                     <input type="text" id="port" value="5000" class="port-input">
                 </div>
-                <input type="text" id="username" placeholder="Username" required>
-                <input type="password" id="password" placeholder="Password" required>
+                <input type="text" id="username" placeholder="Username" required autocomplete="username">
+                <input type="password" id="password" placeholder="Password" required autocomplete="current-password">
                 <button type="submit" id="login-btn">Connect</button>
             </form>
         </div>
@@ -30,8 +30,8 @@
         <div id="quickconnect-tab" class="tab-content">
             <form id="qc-form">
                 <input type="text" id="qc-id" placeholder="QuickConnect ID" required>
-                <input type="text" id="qc-username" placeholder="Username" required>
-                <input type="password" id="qc-password" placeholder="Password" required>
+                <input type="text" id="qc-username" placeholder="Username" required autocomplete="username">
+                <input type="password" id="qc-password" placeholder="Password" required autocomplete="current-password">
                 <button type="submit" id="qc-btn">Connect</button>
             </form>
             <div id="qc-progress" class="progress-steps hidden">

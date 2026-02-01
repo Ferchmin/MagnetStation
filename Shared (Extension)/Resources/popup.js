@@ -335,23 +335,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             try {
                 data = JSON.parse(text);
             } catch (e) {
-                throw new Error('Not a Synology API response');
+                throw new Error('Could not reach Synology. Check your URL and make sure DSM is running.');
             }
 
             if (data.success && data.data?.sid) {
                 return data.data.sid;
             } else {
                 const errorCode = data.error?.code;
-                if (errorCode === 400) throw new Error('Invalid username or password');
-                else if (errorCode === 401) throw new Error('Account disabled');
-                else if (errorCode === 402) throw new Error('Permission denied');
-                else if (errorCode === 403) throw new Error('2FA required (not supported)');
-                else throw new Error(`Auth error ${errorCode || 'unknown'}`);
+                if (errorCode === 400) throw new Error('Invalid username or password. Please check your credentials.');
+                else if (errorCode === 401) throw new Error('This account has been disabled. Contact your NAS administrator.');
+                else if (errorCode === 402) throw new Error('Permission denied. Make sure you have access to Download Station.');
+                else if (errorCode === 403) throw new Error('Two-factor authentication is enabled. Please disable 2FA or use an app-specific password.');
+                else if (errorCode === 404) throw new Error('Download Station is not installed on this NAS.');
+                else throw new Error(`Login failed (error ${errorCode || 'unknown'}). Please try again.`);
             }
         } catch (e) {
             clearTimeout(timeout);
             if (e.name === 'AbortError') {
-                throw new Error('Connection timeout');
+                throw new Error('Connection timed out. Check your network and NAS availability.');
             }
             throw e;
         }
@@ -401,12 +402,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (data.success && data.data.tasks) {
                 renderDownloads(data.data.tasks);
+            } else if (data.error?.code === 105) {
+                // Session expired
+                downloadsList.innerHTML = '<p class="empty">Session expired. Please reconnect.</p>';
+                await browser.storage.local.remove(['sid']);
+                setTimeout(() => showLoginView(), 2000);
             } else {
-                downloadsList.innerHTML = '<p class="empty">Failed to load downloads</p>';
+                downloadsList.innerHTML = '<p class="empty">Could not load downloads. Try refreshing.</p>';
             }
         } catch (err) {
             console.error('Load downloads error:', err);
-            downloadsList.innerHTML = '<p class="empty">Error loading downloads</p>';
+            downloadsList.innerHTML = '<p class="empty">Connection error. Check your network.</p>';
         }
     }
 

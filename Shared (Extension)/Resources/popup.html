@@ -7,7 +7,10 @@
 </head>
 <body>
     <div id="login-view" class="view">
-        <h2>Magnet Station</h2>
+        <h2 class="title-with-logo">
+            <img src="images/logo.png" alt="" class="title-logo">
+            Magnet Station
+        </h2>
 
         <div class="tabs">
             <button class="tab active" data-tab="local">Local</button>
@@ -46,7 +49,10 @@
 
     <div id="connected-view" class="view hidden">
         <div class="header">
-            <h2>Magnet Station</h2>
+            <h2 class="title-with-logo">
+                <img src="images/logo.png" alt="" class="title-logo">
+                Magnet Station
+            </h2>
             <button id="refresh-btn" class="icon-btn" title="Refresh">↻</button>
         </div>
 
@@ -58,7 +64,10 @@
 
         <div class="connection-info">
             <span class="connection-text"><span id="connected-user"></span> · <span id="connected-server"></span></span>
-            <button id="logout-btn">Disconnect</button>
+            <div class="connection-buttons">
+                <button id="open-synology-btn" class="icon-btn" title="Open Synology">↗</button>
+                <button id="logout-btn">Disconnect</button>
+            </div>
         </div>
     </div>
 </body>

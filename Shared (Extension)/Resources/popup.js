@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const errorEl = document.getElementById('error');
     const logoutBtn = document.getElementById('logout-btn');
     const refreshBtn = document.getElementById('refresh-btn');
+    const openSynologyBtn = document.getElementById('open-synology-btn');
     const connectedUser = document.getElementById('connected-user');
     const connectedServer = document.getElementById('connected-server');
     const downloadsList = document.getElementById('downloads-list');
@@ -382,6 +383,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+    // Open Synology in new tab
+    openSynologyBtn.addEventListener('click', async () => {
+        const stored = await browser.storage.local.get(['synologyUrl', 'sid']);
+        if (stored.synologyUrl) {
+            browser.tabs.create({ url: stored.synologyUrl });
+        }
+    });
+
     async function loadDownloads(synologyUrl, sid) {
         downloadsList.innerHTML = '<p class="loading">Loading...</p>';
 
@@ -436,11 +445,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 metaText = 'Error';
             }
 
+            const uri = task.additional?.detail?.uri || '';
+            const hasMagnet = uri.startsWith('magnet:');
+
             return `
-                <div class="download-item" data-task-id="${task.id}">
+                <div class="download-item" data-task-id="${task.id}" data-uri="${escapeHtml(uri)}">
                     <div class="download-header">
                         <div class="download-name">${escapeHtml(name)}</div>
-                        <button class="delete-btn" title="Remove">×</button>
+                        <div class="download-actions">
+                            ${hasMagnet ? '<button class="copy-btn" title="Copy magnet link">⎘</button>' : ''}
+                            <button class="delete-btn" title="Remove">×</button>
+                        </div>
                     </div>
                     <div class="download-row">
                         <div class="progress-bar">
@@ -451,6 +466,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
             `;
         }).join('');
+
+        // Add click handlers for copy buttons
+        downloadsList.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const item = btn.closest('.download-item');
+                const uri = item.dataset.uri;
+                if (uri) {
+                    await navigator.clipboard.writeText(uri);
+                    btn.textContent = '✓';
+                    setTimeout(() => btn.textContent = '⎘', 1500);
+                }
+            });
+        });
 
         // Add click handlers for delete buttons
         downloadsList.querySelectorAll('.delete-btn').forEach(btn => {

@@ -21,6 +21,17 @@ h2 {
     font-size: 16px;
 }
 
+.title-with-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.title-logo {
+    width: 20px;
+    height: 20px;
+}
+
 .header {
     display: flex;
     justify-content: space-between;
@@ -228,6 +239,17 @@ button:disabled {
     margin-right: 10px;
 }
 
+.connection-buttons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#open-synology-btn {
+    font-size: 14px;
+    padding: 4px 6px;
+}
+
 #logout-btn {
     background: #ff3b30;
     padding: 5px 10px;
@@ -290,19 +312,38 @@ button:disabled {
     overflow: hidden;
 }
 
-.delete-btn {
-    background: none;
-    border: none;
-    color: #999;
-    font-size: 14px;
-    line-height: 1;
-    padding: 0;
-    cursor: pointer;
+.download-actions {
+    display: flex;
+    gap: 6px;
     flex-shrink: 0;
 }
 
-.delete-btn:hover {
+.copy-btn,
+.delete-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    line-height: 1;
+    padding: 2px 4px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.copy-btn {
+    color: #666;
+}
+
+.copy-btn:hover {
+    color: #333;
+    background: #e5e5e5;
+}
+
+.delete-btn {
     color: #ff3b30;
+}
+
+.delete-btn:hover {
+    background: #ffeeee;
 }
 
 .download-row {
@@ -400,5 +441,18 @@ button:disabled {
 
     .progress-bar {
         background: #333;
+    }
+
+    .copy-btn {
+        color: #999;
+    }
+
+    .copy-btn:hover {
+        color: #ccc;
+        background: #3a3a3c;
+    }
+
+    .delete-btn:hover {
+        background: #3a2020;
     }
 }

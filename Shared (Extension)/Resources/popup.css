@@ -1,5 +1,14 @@
 :root {
     color-scheme: light dark;
+    --accent: #D63031;
+    --accent-hover: #b52728;
+    --blue: #007AFF;
+    --blue-hover: #0056b3;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --transition: 0.2s ease;
 }
 
 *, *::before, *::after {
@@ -10,45 +19,55 @@ body {
     min-width: 280px;
     max-width: 400px;
     width: 100%;
-    padding: 15px;
+    padding: 16px;
     margin: 0;
-    font-family: system-ui;
-    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
 }
 
 h2 {
     margin: 0;
-    font-size: 16px;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
 }
 
 .title-with-logo {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
 .title-logo {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
 }
 
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
 }
 
 .icon-btn {
     background: none;
     border: none;
-    font-size: 18px;
+    font-size: 20px;
     cursor: pointer;
-    padding: 5px;
-    color: #007aff;
+    padding: 6px;
+    color: var(--blue);
+    border-radius: var(--radius-sm);
+    transition: background var(--transition), opacity var(--transition);
 }
 
 .icon-btn:hover {
+    background: rgba(0, 122, 255, 0.1);
+    box-shadow: 0 2px 6px rgba(0, 122, 255, 0.2);
+}
+
+.icon-btn:active {
     opacity: 0.7;
 }
 
@@ -56,29 +75,34 @@ h2 {
 .tabs {
     display: flex;
     gap: 0;
-    margin: 12px 0;
-    border-radius: 6px;
+    margin: 14px 0;
+    border-radius: var(--radius);
     overflow: hidden;
-    border: 1px solid #ddd;
+    background: #f0f0f0;
+    padding: 3px;
 }
 
 .tab {
     flex: 1;
-    padding: 8px;
+    padding: 10px 12px;
     border: none;
-    background: #f5f5f5;
+    background: transparent;
     font-size: 13px;
+    font-weight: 500;
     cursor: pointer;
     color: #666;
+    border-radius: calc(var(--radius) - 3px);
+    transition: all var(--transition);
 }
 
-.tab:not(:last-child) {
-    border-right: 1px solid #ddd;
+.tab:hover:not(.active) {
+    color: #333;
 }
 
 .tab.active {
-    background: #007aff;
-    color: white;
+    background: white;
+    color: #333;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .tab-content {
@@ -91,10 +115,10 @@ h2 {
 
 /* Progress steps */
 .progress-steps {
-    margin-top: 12px;
-    padding: 10px;
-    background: #f5f5f5;
-    border-radius: 6px;
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: #f8f8f8;
+    border-radius: var(--radius);
 }
 
 .progress-steps.hidden {
@@ -102,10 +126,10 @@ h2 {
 }
 
 .step {
-    font-size: 12px;
+    font-size: 13px;
     color: #888;
-    padding: 4px 0;
-    padding-left: 20px;
+    padding: 6px 0;
+    padding-left: 24px;
     position: relative;
 }
 
@@ -117,31 +141,31 @@ h2 {
 }
 
 .step.active {
-    color: #007aff;
+    color: var(--accent);
 }
 
 .step.active::before {
     content: "◐";
-    color: #007aff;
+    color: var(--accent);
     animation: spin 1s linear infinite;
 }
 
 .step.done {
-    color: #34c759;
+    color: var(--success);
 }
 
 .step.done::before {
     content: "●";
-    color: #34c759;
+    color: var(--success);
 }
 
 .step.error {
-    color: #ff3b30;
+    color: var(--accent);
 }
 
 .step.error::before {
     content: "●";
-    color: #ff3b30;
+    color: var(--accent);
 }
 
 @keyframes spin {
@@ -162,13 +186,13 @@ h2 {
 form {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
 }
 
 .url-row {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
 }
 
 .url-row #url {
@@ -176,46 +200,66 @@ form {
 }
 
 .port-separator {
-    color: #888;
-    font-weight: bold;
+    color: #999;
+    font-weight: 600;
 }
 
 .port-input {
-    width: 55px;
+    width: 60px;
     text-align: center;
 }
 
 input {
-    padding: 8px 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 14px;
-    background: var(--input-bg, #fff);
+    padding: 12px 14px;
+    border: 1px solid #e0e0e0;
+    border-radius: var(--radius);
+    font-size: 15px;
+    background: var(--input-bg, #fafafa);
     color: var(--input-color, #000);
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+input::placeholder {
+    color: #aaa;
 }
 
 input:focus {
     outline: none;
-    border-color: #007aff;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(214, 48, 49, 0.1);
+    background: white;
 }
 
 button {
-    padding: 8px 12px;
+    padding: 12px 16px;
     border: none;
-    border-radius: 6px;
-    font-size: 13px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
     cursor: pointer;
-    background: #007aff;
+    background: var(--accent);
     color: white;
+    transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
 }
 
 button:hover {
-    background: #0056b3;
+    background: var(--accent-hover);
+}
+
+button:hover {
+    box-shadow: 0 2px 8px rgba(214, 48, 49, 0.3);
+}
+
+button:active {
+    transform: scale(0.98);
 }
 
 button:disabled {
     background: #ccc;
     cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
 }
 
 /* Connection info */
@@ -223,98 +267,114 @@ button:disabled {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 10px;
-    background: #f5f5f5;
-    border-radius: 6px;
-    margin-top: 10px;
+    padding: 10px 12px;
+    background: #f8f8f8;
+    border-radius: var(--radius);
+    margin-top: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 
 .connection-text {
-    font-size: 11px;
+    font-size: 12px;
     color: #666;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     flex: 1;
-    margin-right: 10px;
+    margin-right: 12px;
 }
 
 .connection-buttons {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
 #open-synology-btn {
-    font-size: 14px;
-    padding: 4px 6px;
+    font-size: 16px;
+    padding: 6px 8px;
 }
 
 #logout-btn {
-    background: #ff3b30;
-    padding: 5px 10px;
-    font-size: 11px;
+    background: var(--accent);
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
     flex-shrink: 0;
 }
 
 #logout-btn:hover {
-    background: #d32f2f;
+    background: var(--accent-hover);
+    box-shadow: 0 2px 6px rgba(214, 48, 49, 0.3);
 }
 
 .error {
-    color: #ff3b30;
-    font-size: 12px;
-    margin: 5px 0 0 0;
+    color: var(--accent);
+    font-size: 13px;
+    margin: 8px 0 0 0;
     text-align: center;
+    line-height: 1.4;
 }
 
 /* Downloads section */
 #downloads-section {
-    margin-top: 8px;
+    margin-top: 10px;
 }
 
 #downloads-list {
-    max-height: 250px;
+    max-height: 280px;
     overflow-y: auto;
+    padding: 2px;
 }
 
 .loading, .empty {
     text-align: center;
-    color: #888;
-    font-size: 12px;
-    padding: 12px 0;
+    color: #999;
+    font-size: 13px;
+    padding: 20px 0;
 }
 
-/* Compact download items */
+/* Download items - Card style */
 .download-item {
-    padding: 6px 0;
-    border-bottom: 1px solid #eee;
+    padding: 12px;
+    margin-bottom: 8px;
+    background: #f8f8f8;
+    border-radius: var(--radius);
+    border: 1px solid #eee;
+    transition: all var(--transition);
 }
 
 .download-item:last-child {
-    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.download-item:hover {
+    border-color: #ddd;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
 .download-header {
     display: flex;
     align-items: flex-start;
-    gap: 6px;
-    margin-bottom: 4px;
+    gap: 8px;
+    margin-bottom: 10px;
 }
 
 .download-name {
-    font-size: 12px;
+    font-size: 13px;
+    font-weight: 600;
     flex: 1;
     word-break: break-word;
     display: -webkit-box;
-    -webkit-line-clamp: 1;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    line-height: 1.3;
 }
 
 .download-actions {
     display: flex;
-    gap: 6px;
+    gap: 2px;
     flex-shrink: 0;
 }
 
@@ -322,105 +382,132 @@ button:disabled {
 .delete-btn {
     background: none;
     border: none;
-    font-size: 16px;
+    font-size: 20px;
     line-height: 1;
-    padding: 2px 4px;
+    padding: 4px 6px;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition);
 }
 
 .copy-btn {
-    color: #666;
+    color: var(--blue);
 }
 
 .copy-btn:hover {
-    color: #333;
-    background: #e5e5e5;
+    background: rgba(0, 122, 255, 0.1);
+    box-shadow: 0 2px 6px rgba(0, 122, 255, 0.2);
 }
 
 .delete-btn {
-    color: #ff3b30;
+    color: var(--accent);
 }
 
 .delete-btn:hover {
-    background: #ffeeee;
+    background: rgba(214, 48, 49, 0.1);
+    box-shadow: 0 2px 6px rgba(214, 48, 49, 0.2);
 }
 
 .download-row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
 }
 
 .progress-bar {
     flex: 1;
-    height: 4px;
-    background: #eee;
-    border-radius: 2px;
+    height: 6px;
+    background: #e0e0e0;
+    border-radius: 3px;
     overflow: hidden;
 }
 
 .progress-fill {
     height: 100%;
-    background: #007aff;
-    border-radius: 2px;
-    transition: width 0.3s;
+    background: var(--blue);
+    border-radius: 3px;
+    transition: width 0.3s ease;
 }
 
 .progress-fill.complete {
-    background: #34c759;
+    background: var(--success);
 }
 
 .progress-fill.paused {
-    background: #ff9500;
+    background: var(--warning);
 }
 
 .progress-fill.error {
-    background: #ff3b30;
+    background: var(--accent);
 }
 
 .download-meta {
-    font-size: 10px;
-    color: #888;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
     white-space: nowrap;
+    min-width: 55px;
+    text-align: right;
 }
 
 .download-meta.downloading {
-    color: #007aff;
+    color: var(--blue);
 }
 
 .download-meta.seeding {
-    color: #34c759;
+    color: var(--success);
 }
 
 .download-meta.paused {
-    color: #ff9500;
+    color: #f39c12;
 }
 
 .download-meta.error {
-    color: #ff3b30;
+    color: var(--accent);
 }
 
+/* Dark mode */
 @media (prefers-color-scheme: dark) {
+    body {
+        background: #1c1c1e;
+        color: #f0f0f0;
+    }
+
+    h2 {
+        color: #fff;
+    }
+
     input {
         --input-bg: #2c2c2e;
         --input-color: #fff;
-        border-color: #555;
+        border-color: #3a3a3c;
+    }
+
+    input::placeholder {
+        color: #666;
+    }
+
+    input:focus {
+        background: #333;
+        border-color: var(--accent);
     }
 
     .tabs {
-        border-color: #444;
+        background: #2c2c2e;
     }
 
     .tab {
-        background: #2c2c2e;
         color: #999;
-        border-color: #444;
+    }
+
+    .tab:hover:not(.active) {
+        color: #ccc;
     }
 
     .tab.active {
-        background: #007aff;
-        color: white;
+        background: #3a3a3c;
+        color: #fff;
+        box-shadow: none;
     }
 
     .progress-steps {
@@ -429,6 +516,7 @@ button:disabled {
 
     .connection-info {
         background: #2c2c2e;
+        box-shadow: none;
     }
 
     .connection-text {
@@ -436,23 +524,44 @@ button:disabled {
     }
 
     .download-item {
-        border-bottom-color: #333;
+        background: #2c2c2e;
+        border-color: #3a3a3c;
+    }
+
+    .download-item:hover {
+        border-color: #4a4a4c;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .download-name {
+        color: #f0f0f0;
     }
 
     .progress-bar {
-        background: #333;
-    }
-
-    .copy-btn {
-        color: #999;
-    }
-
-    .copy-btn:hover {
-        color: #ccc;
         background: #3a3a3c;
     }
 
+    .copy-btn {
+        color: var(--blue);
+    }
+
+    .copy-btn:hover {
+        background: rgba(0, 122, 255, 0.2);
+    }
+
     .delete-btn:hover {
-        background: #3a2020;
+        background: rgba(214, 48, 49, 0.2);
+    }
+
+    #logout-btn {
+        background: var(--accent);
+    }
+
+    #logout-btn:hover {
+        background: var(--accent-hover);
+    }
+
+    .icon-btn:hover {
+        background: rgba(0, 122, 255, 0.2);
     }
 }

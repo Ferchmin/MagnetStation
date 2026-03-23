@@ -13,24 +13,11 @@
         </h2>
 
         <div class="tabs">
-            <button class="tab active" data-tab="local">Local</button>
-            <button class="tab" data-tab="quickconnect">QuickConnect</button>
+            <button class="tab active" data-tab="quickconnect">QuickConnect</button>
+            <button class="tab" data-tab="local">Local</button>
         </div>
 
-        <div id="local-tab" class="tab-content active">
-            <form id="login-form">
-                <div class="url-row">
-                    <input type="text" id="url" value="http://" required>
-                    <span class="port-separator">:</span>
-                    <input type="text" id="port" value="5000" class="port-input">
-                </div>
-                <input type="text" id="username" placeholder="Username" required autocomplete="username">
-                <input type="password" id="password" placeholder="Password" required autocomplete="current-password">
-                <button type="submit" id="login-btn">Connect</button>
-            </form>
-        </div>
-
-        <div id="quickconnect-tab" class="tab-content">
+        <div id="quickconnect-tab" class="tab-content active">
             <form id="qc-form">
                 <input type="text" id="qc-id" placeholder="QuickConnect ID" required>
                 <input type="text" id="qc-username" placeholder="Username" required autocomplete="username">
@@ -42,6 +29,19 @@
                 <div class="step" data-step="ping">Finding best server...</div>
                 <div class="step" data-step="auth">Authenticating...</div>
             </div>
+        </div>
+
+        <div id="local-tab" class="tab-content">
+            <form id="login-form">
+                <div class="url-row">
+                    <input type="text" id="url" value="http://" required>
+                    <span class="port-separator">:</span>
+                    <input type="text" id="port" value="5000" class="port-input">
+                </div>
+                <input type="text" id="username" placeholder="Username" required autocomplete="username">
+                <input type="password" id="password" placeholder="Password" required autocomplete="current-password">
+                <button type="submit" id="login-btn">Connect</button>
+            </form>
         </div>
 
         <p id="error" class="error"></p>

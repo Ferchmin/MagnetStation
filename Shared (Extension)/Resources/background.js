@@ -1,3 +1,16 @@
+// Native messaging helper (routes to SafariWebExtensionHandler → Keychain)
+async function sendNative(message) {
+    try {
+        return await browser.runtime.sendNativeMessage(
+            "com.ferchmin.DownloadStation.Extension",
+            message
+        );
+    } catch (e) {
+        console.log("Native message failed:", e.message);
+        return { success: false, error: e.message };
+    }
+}
+
 browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log("MagnetToSynology: Received request:", request);
 
@@ -94,8 +107,21 @@ async function resolveQuickConnect(qcId) {
 
 async function addMagnetToSynology(magnetUrl) {
     try {
-        // Get stored credentials
-        const stored = await browser.storage.local.get(['synologyUrl', 'username', 'sid']);
+        // Get stored credentials — try iCloud Keychain first, then local storage
+        let stored = await browser.storage.local.get(['synologyUrl', 'username', 'sid']);
+
+        if (!stored.synologyUrl || !stored.sid) {
+            const keychainData = await sendNative({ action: "loadSession" });
+            if (keychainData?.success && keychainData.synologyUrl && keychainData.sid) {
+                stored = keychainData;
+                // Sync back to local storage
+                await browser.storage.local.set({
+                    synologyUrl: keychainData.synologyUrl,
+                    username: keychainData.username,
+                    sid: keychainData.sid
+                });
+            }
+        }
 
         if (!stored.synologyUrl || !stored.sid) {
             console.error("MagnetToSynology: Not logged in");

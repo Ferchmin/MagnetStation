@@ -58,6 +58,10 @@
 		381E7D282F25369800345741 /* DownloadStation.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DownloadStation.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		381E7D332F25369800345741 /* DownloadStation Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "DownloadStation Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		381E7D3D2F25369800345741 /* DownloadStation Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "DownloadStation Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		38D12B0A2F71DF7E00DD55B2 /* DownloadStation (iOS).entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "DownloadStation (iOS).entitlements"; sourceTree = "<group>"; };
+		38D12B0B2F71DFA000DD55B2 /* DownloadStation (macOS).entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "DownloadStation (macOS).entitlements"; sourceTree = "<group>"; };
+		38D12B0C2F71DFAA00DD55B2 /* DownloadStation Extension (iOS).entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "DownloadStation Extension (iOS).entitlements"; sourceTree = "<group>"; };
+		38D12B0D2F71DFC200DD55B2 /* DownloadStation Extension (macOS).entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "DownloadStation Extension (macOS).entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -109,6 +113,7 @@
 		381E7D742F25369800345741 /* Exceptions for "Shared (Extension)" folder in "DownloadStation Extension (iOS)" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				KeychainHelper.swift,
 				Resources/_locales,
 				Resources/background.js,
 				Resources/content.js,
@@ -124,6 +129,7 @@
 		381E7D752F25369800345741 /* Exceptions for "Shared (Extension)" folder in "DownloadStation Extension (macOS)" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				KeychainHelper.swift,
 				Resources/_locales,
 				Resources/background.js,
 				Resources/content.js,
@@ -227,6 +233,10 @@
 		381E7CF92F25369700345741 = {
 			isa = PBXGroup;
 			children = (
+				38D12B0D2F71DFC200DD55B2 /* DownloadStation Extension (macOS).entitlements */,
+				38D12B0C2F71DFAA00DD55B2 /* DownloadStation Extension (iOS).entitlements */,
+				38D12B0B2F71DFA000DD55B2 /* DownloadStation (macOS).entitlements */,
+				38D12B0A2F71DF7E00DD55B2 /* DownloadStation (iOS).entitlements */,
 				381E7CFE2F25369700345741 /* Shared (App) */,
 				381E7D072F25369800345741 /* Shared (Extension) */,
 				381E7D182F25369800345741 /* iOS (App) */,
@@ -468,6 +478,7 @@
 		381E7D632F25369800345741 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "DownloadStation Extension (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = KLMLZZ9455;
@@ -502,6 +513,7 @@
 		381E7D642F25369800345741 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "DownloadStation Extension (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = KLMLZZ9455;
@@ -539,6 +551,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "DownloadStation (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = KLMLZZ9455;
@@ -580,6 +593,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "DownloadStation (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = KLMLZZ9455;
@@ -620,6 +634,7 @@
 		381E7D6D2F25369800345741 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "DownloadStation Extension (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = KLMLZZ9455;
@@ -656,6 +671,7 @@
 		381E7D6E2F25369800345741 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "DownloadStation Extension (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = KLMLZZ9455;
@@ -694,6 +710,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "DownloadStation (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = KLMLZZ9455;
@@ -735,6 +752,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "DownloadStation (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = KLMLZZ9455;

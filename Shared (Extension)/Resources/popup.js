@@ -12,6 +12,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     const downloadsList = document.getElementById('downloads-list');
     const qcProgress = document.getElementById('qc-progress');
 
+    // Native messaging helper (routes to SafariWebExtensionHandler → Keychain)
+    async function sendNative(message) {
+        try {
+            return await browser.runtime.sendNativeMessage(
+                "com.ferchmin.DownloadStation.Extension",
+                message
+            );
+        } catch (e) {
+            console.log("Native message failed:", e.message);
+            return { success: false, error: e.message };
+        }
+    }
+
     // Tab switching
     document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', () => {
@@ -23,12 +36,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    // Check if already connected
-    const stored = await browser.storage.local.get(['synologyUrl', 'username', 'sid']);
+    // Check if already connected — try iCloud Keychain first, then local storage
+    let stored = await sendNative({ action: "loadSession" });
+    if (!stored?.success) {
+        stored = await browser.storage.local.get(['synologyUrl', 'username', 'sid']);
+    }
 
     if (stored.sid && stored.synologyUrl && stored.username) {
         showConnectedView(stored.username, stored.synologyUrl);
         loadDownloads(stored.synologyUrl, stored.sid);
+    } else if (stored.synologyUrl && stored.username) {
+        // Session expired but we have credentials — pre-fill login form
+        tryPrefillLogin(stored.synologyUrl, stored.username);
     }
 
     // Local login form submission
@@ -55,6 +74,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     username: username,
                     sid: sid
                 });
+                // Save session + credentials to iCloud Keychain
+                sendNative({ action: "saveSession", synologyUrl: url, username, sid });
+                sendNative({ action: "saveCredentials", server: url, username, password });
                 showConnectedView(username, url);
                 loadDownloads(url, sid);
             }
@@ -157,6 +179,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 sid: sid,
                 quickConnectId: qcId
             });
+            // Save session + credentials to iCloud Keychain
+            sendNative({ action: "saveSession", synologyUrl: url, username, sid, quickConnectId: qcId });
+            sendNative({ action: "saveCredentials", server: url, username, password });
             showConnectedView(username, qcId);
             loadDownloads(url, sid);
         } catch (err) {
@@ -364,6 +389,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Clear storage and show login view immediately — don't block on server response
         await browser.storage.local.remove(['synologyUrl', 'username', 'sid', 'quickConnectId']);
+        sendNative({ action: "deleteSession" });
         showLoginView();
 
         // Best-effort server logout (fire and forget with timeout)
@@ -415,6 +441,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Session expired
                 downloadsList.innerHTML = '<p class="empty">Session expired. Please reconnect.</p>';
                 await browser.storage.local.remove(['sid']);
+                sendNative({ action: "deleteSession" });
                 setTimeout(() => showLoginView(), 2000);
             } else {
                 downloadsList.innerHTML = '<p class="empty">Could not load downloads. Try refreshing.</p>';
@@ -545,6 +572,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    async function tryPrefillLogin(synologyUrl, username) {
+        // Parse URL and port for the login form
+        const match = synologyUrl.match(/^(.*):(\d+)$/);
+        if (match) {
+            document.getElementById('url').value = match[1];
+            document.getElementById('port').value = match[2];
+        } else {
+            document.getElementById('url').value = synologyUrl;
+        }
+        document.getElementById('username').value = username;
+
+        // Try to fill password from Keychain
+        const creds = await sendNative({ action: "loadCredentials", server: synologyUrl });
+        if (creds?.success && creds.password) {
+            document.getElementById('password').value = creds.password;
+        }
     }
 
     function showConnectedView(username, server) {

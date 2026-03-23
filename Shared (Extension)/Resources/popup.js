@@ -362,16 +362,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     logoutBtn.addEventListener('click', async () => {
         const stored = await browser.storage.local.get(['synologyUrl', 'sid']);
 
+        // Clear storage and show login view immediately — don't block on server response
+        await browser.storage.local.remove(['synologyUrl', 'username', 'sid', 'quickConnectId']);
+        showLoginView();
+
+        // Best-effort server logout (fire and forget with timeout)
         if (stored.synologyUrl && stored.sid) {
             try {
-                await fetch(`${stored.synologyUrl}/webapi/entry.cgi?api=SYNO.API.Auth&version=7&method=logout&session=DownloadStation&_sid=${stored.sid}`);
+                const controller = new AbortController();
+                setTimeout(() => controller.abort(), 5000);
+                fetch(`${stored.synologyUrl}/webapi/entry.cgi?api=SYNO.API.Auth&version=7&method=logout&session=DownloadStation&_sid=${stored.sid}`, {
+                    signal: controller.signal
+                }).catch(() => {});
             } catch (e) {
                 // Ignore logout errors
             }
         }
-
-        await browser.storage.local.remove(['synologyUrl', 'username', 'sid', 'quickConnectId']);
-        showLoginView();
     });
 
     // Refresh downloads
@@ -397,7 +403,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         try {
             const url = `${synologyUrl}/webapi/DownloadStation/task.cgi?api=SYNO.DownloadStation.Task&version=1&method=list&additional=transfer,detail`;
-            const response = await fetch(`${url}&_sid=${sid}`);
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 10000);
+            const response = await fetch(`${url}&_sid=${sid}`, { signal: controller.signal });
+            clearTimeout(timeout);
             const data = await response.json();
 
             if (data.success && data.data.tasks) {
@@ -424,7 +433,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         tasks.sort((a, b) => {
             const order = { downloading: 0, waiting: 1, paused: 2, finishing: 3, finished: 4, seeding: 5, error: 6 };
-            return (order[a.status] || 99) - (order[b.status] || 99);
+            return (order[a.status] ?? 99) - (order[b.status] ?? 99);
         });
 
         downloadsList.innerHTML = tasks.map(task => {

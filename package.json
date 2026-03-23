@@ -1,0 +1,28 @@
+{
+  "name": "downloadstation",
+  "version": "1.0.0",
+  "description": "A Safari extension to send magnet links directly to your Synology Download Station.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "vitest run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ferchmin/MagnetStation.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Ferchmin/MagnetStation/issues"
+  },
+  "homepage": "https://github.com/Ferchmin/MagnetStation#readme",
+  "devDependencies": {
+    "jsdom": "^29.0.1",
+    "vitest": "^4.1.1"
+  }
+}

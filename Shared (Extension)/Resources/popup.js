@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function sendNative(message) {
         try {
             return await browser.runtime.sendNativeMessage(
-                "com.ferchmin.DownloadStation.Extension",
+                "com.ferchmin.DownloadStation",
                 message
             );
         } catch (e) {
@@ -116,35 +116,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             let url = null;
             let sid = null;
 
-            // Build list of URLs to try
-            const candidates = [];
-            const srv = serverInfo.server;
-            const service = serverInfo.service;
-
-            // LAN IPs first (fastest)
-            if (srv?.interface) {
-                for (const iface of srv.interface) {
-                    if (iface.ip) {
-                        candidates.push(`https://${iface.ip}:5001`);
-                        candidates.push(`http://${iface.ip}:5000`);
-                    }
-                }
-            }
-
-            // DDNS hostname
-            if (srv?.ddns) {
-                const port = service?.ext_port || 5001;
-                candidates.push(`https://${srv.ddns}:${port}`);
-            }
-
-            // External IP
-            if (srv?.external?.ip) {
-                const port = srv.external.port || service?.ext_port || 5001;
-                candidates.push(`https://${srv.external.ip}:${port}`);
-            }
-
-            // QuickConnect relay URL (works but slower)
-            candidates.push(`https://${qcId}.quickconnect.to`);
+            const candidates = buildCandidateUrls(serverInfo, qcId);
 
             console.log('Trying servers:', candidates);
             setStepDone('ping');
@@ -412,7 +384,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (stored.synologyUrl && stored.sid) {
             refreshBtn.style.transform = 'rotate(360deg)';
             setTimeout(() => refreshBtn.style.transform = '', 500);
-            await loadDownloads(stored.synologyUrl, stored.sid);
+            await loadDownloads(stored.synologyUrl, stored.sid, false);
         }
     });
 
@@ -424,7 +396,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    async function loadDownloads(synologyUrl, sid) {
+    async function loadDownloads(synologyUrl, sid, isRetry) {
         downloadsList.innerHTML = '<p class="loading">Loading...</p>';
 
         try {
@@ -448,8 +420,84 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } catch (err) {
             console.error('Load downloads error:', err);
+
+            // If this is a connection error and we have a QuickConnect ID, re-resolve
+            if (!isRetry) {
+                const reresolved = await tryReResolveQuickConnect(sid);
+                if (reresolved) return;
+            }
+
             downloadsList.innerHTML = '<p class="empty">Connection error. Check your network.</p>';
         }
+    }
+
+    // When the stored URL is unreachable, re-resolve QuickConnect and retry
+    async function tryReResolveQuickConnect(sid) {
+        const { quickConnectId } = await browser.storage.local.get(['quickConnectId']);
+        if (!quickConnectId) return false;
+
+        console.log('Stored URL unreachable, re-resolving QuickConnect:', quickConnectId);
+        downloadsList.innerHTML = '<p class="loading">Reconnecting via QuickConnect...</p>';
+
+        try {
+            const serverInfo = await resolveQuickConnect(quickConnectId);
+            const candidates = buildCandidateUrls(serverInfo, quickConnectId);
+
+            // Try each candidate with the existing sid
+            for (const candidate of candidates) {
+                try {
+                    const testUrl = `${candidate}/webapi/DownloadStation/task.cgi?api=SYNO.DownloadStation.Task&version=1&method=list&additional=transfer,detail&_sid=${sid}`;
+                    const controller = new AbortController();
+                    const timeout = setTimeout(() => controller.abort(), 5000);
+                    const response = await fetch(testUrl, { signal: controller.signal });
+                    clearTimeout(timeout);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        console.log('Re-resolved to:', candidate);
+                        // Update stored URL
+                        await browser.storage.local.set({ synologyUrl: candidate });
+                        sendNative({ action: "saveSession", synologyUrl: candidate, username: (await browser.storage.local.get(['username'])).username, sid, quickConnectId });
+                        showConnectedView(connectedUser.textContent, quickConnectId);
+                        renderDownloads(data.data.tasks);
+                        return true;
+                    }
+                } catch (e) {
+                    console.log('Re-resolve candidate failed:', candidate, e.message);
+                }
+            }
+        } catch (e) {
+            console.error('QuickConnect re-resolve failed:', e);
+        }
+
+        return false;
+    }
+
+    // Build candidate URLs from QuickConnect server info
+    function buildCandidateUrls(serverInfo, qcId) {
+        const candidates = [];
+        const srv = serverInfo.server;
+        const service = serverInfo.service;
+
+        if (srv?.interface) {
+            for (const iface of srv.interface) {
+                if (iface.ip) {
+                    candidates.push(`https://${iface.ip}:5001`);
+                    candidates.push(`http://${iface.ip}:5000`);
+                }
+            }
+        }
+        if (srv?.ddns) {
+            const port = service?.ext_port || 5001;
+            candidates.push(`https://${srv.ddns}:${port}`);
+        }
+        if (srv?.external?.ip) {
+            const port = srv.external.port || service?.ext_port || 5001;
+            candidates.push(`https://${srv.external.ip}:${port}`);
+        }
+        candidates.push(`https://${qcId}.quickconnect.to`);
+
+        return candidates;
     }
 
     function renderDownloads(tasks) {

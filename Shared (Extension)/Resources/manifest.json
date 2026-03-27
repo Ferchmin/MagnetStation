@@ -29,7 +29,7 @@
         "default_icon": "images/toolbar-icon.svg"
     },
 
-    "permissions": [ "notifications", "storage" ],
+    "permissions": [ "notifications", "storage", "nativeMessaging" ],
 
     "host_permissions": [
         "http://*/*",

@@ -2,7 +2,7 @@
 async function sendNative(message) {
     try {
         return await browser.runtime.sendNativeMessage(
-            "com.ferchmin.DownloadStation.Extension",
+            "com.ferchmin.DownloadStation",
             message
         );
     } catch (e) {

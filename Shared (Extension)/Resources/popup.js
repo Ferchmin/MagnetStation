@@ -525,8 +525,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             else if (status === 'error') progressClass = 'error';
 
             let metaText = `${progress}%`;
-            if (status === 'downloading' && speed > 0) {
-                metaText = `${formatSpeed(speed)}`;
+            if (status === 'downloading') {
+                metaText = speed > 0 ? formatSpeed(speed) : `${progress}% ↓`;
             } else if (status === 'seeding') {
                 metaText = 'Seeding';
             } else if (status === 'paused') {

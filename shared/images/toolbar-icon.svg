@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Invisible anchors with quarter padding (70 left/right, 64 top/bottom) -->
+  <rect x="212" y="192" width="1" height="1" fill="transparent"/>
+  <rect x="812" y="192" width="1" height="1" fill="transparent"/>
+  <rect x="212" y="832" width="1" height="1" fill="transparent"/>
+  <rect x="812" y="832" width="1" height="1" fill="transparent"/>
+
+  <!-- Single merged path for the magnet shape -->
+  <path d="M282 256
+           H742
+           V610
+           H588
+           V410
+           H436
+           V610
+           H282
+           V256
+           Z
+           M282 640
+           H436
+           V768
+           H282
+           Z
+           M588 640
+           H742
+           V768
+           H588
+           Z"
+        fill="#000000"
+        fill-rule="nonzero"/>
+</svg>

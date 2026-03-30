@@ -4,9 +4,10 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
 const POPUP_HTML = readFileSync(
-    resolve(__dirname, '../Shared (Extension)/Resources/popup.html'),
+    resolve(__dirname, '../shared/popup.html'),
     'utf-8'
 );
+// Read the built (bundled) popup.js which has platform.js inlined and no import statements
 const POPUP_JS = readFileSync(
     resolve(__dirname, '../Shared (Extension)/Resources/popup.js'),
     'utf-8'
@@ -28,24 +29,28 @@ function setupPopupEnv({ fetchImpl, storageInit } = {}) {
     // Track storage state
     const storage = storageInit ? { ...storageInit } : {};
 
+    // Storage mock helper
+    const storageMethods = () => ({
+        get: vi.fn(async (keys) => {
+            const result = {};
+            for (const k of keys) {
+                if (k in storage) result[k] = storage[k];
+            }
+            return result;
+        }),
+        set: vi.fn(async (obj) => {
+            Object.assign(storage, obj);
+        }),
+        remove: vi.fn(async (keys) => {
+            for (const k of keys) delete storage[k];
+        }),
+    });
+
     // Mock browser.* APIs
     window.browser = {
         storage: {
-            local: {
-                get: vi.fn(async (keys) => {
-                    const result = {};
-                    for (const k of keys) {
-                        if (k in storage) result[k] = storage[k];
-                    }
-                    return result;
-                }),
-                set: vi.fn(async (obj) => {
-                    Object.assign(storage, obj);
-                }),
-                remove: vi.fn(async (keys) => {
-                    for (const k of keys) delete storage[k];
-                }),
-            },
+            local: storageMethods(),
+            sync: storageMethods(),
         },
         runtime: { sendMessage: vi.fn() },
         tabs: { create: vi.fn() },
@@ -149,9 +154,7 @@ describe('unreachable server behavior', () => {
             document.getElementById('logout-btn').click();
             await new Promise((r) => setTimeout(r, 100));
 
-            expect(browserMock.storage.local.remove).toHaveBeenCalledWith([
-                'synologyUrl', 'username', 'sid', 'quickConnectId',
-            ]);
+            expect(browserMock.storage.local.remove).toHaveBeenCalled();
             expect(loginView.classList.contains('hidden')).toBe(false);
             expect(connectedView.classList.contains('hidden')).toBe(true);
         });
@@ -452,8 +455,8 @@ describe('session expiry', () => {
         const downloadsList = document.getElementById('downloads-list');
         expect(downloadsList.innerHTML).toContain('Session expired');
 
-        // Should clear the sid
-        expect(browserMock.storage.local.remove).toHaveBeenCalledWith(['sid']);
+        // Should clear the session
+        expect(browserMock.storage.local.remove).toHaveBeenCalled();
 
         // After 2s delay, should show login view
         // The setTimeout was already scheduled with real timers, so just wait

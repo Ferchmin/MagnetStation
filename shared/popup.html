@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="popup.css">
+    <script type="module" src="popup.js"></script>
+</head>
+<body>
+    <div id="login-view" class="view">
+        <h2 class="title-with-logo">
+            <img src="images/logo.png" alt="" class="title-logo">
+            Magnet Station
+        </h2>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="quickconnect">QuickConnect</button>
+            <button class="tab" data-tab="local">Local</button>
+        </div>
+
+        <div id="quickconnect-tab" class="tab-content active">
+            <form id="qc-form">
+                <input type="text" id="qc-id" placeholder="QuickConnect ID" required>
+                <input type="text" id="qc-username" placeholder="Username" required autocomplete="username">
+                <input type="password" id="qc-password" placeholder="Password" required autocomplete="current-password">
+                <button type="submit" id="qc-btn">Connect</button>
+            </form>
+            <div id="qc-progress" class="progress-steps hidden">
+                <div class="step" data-step="resolve">Resolving QuickConnect...</div>
+                <div class="step" data-step="ping">Finding best server...</div>
+                <div class="step" data-step="auth">Authenticating...</div>
+            </div>
+        </div>
+
+        <div id="local-tab" class="tab-content">
+            <form id="login-form">
+                <div class="url-row">
+                    <input type="text" id="url" value="http://" required>
+                    <span class="port-separator">:</span>
+                    <input type="text" id="port" value="5000" class="port-input">
+                </div>
+                <input type="text" id="username" placeholder="Username" required autocomplete="username">
+                <input type="password" id="password" placeholder="Password" required autocomplete="current-password">
+                <button type="submit" id="login-btn">Connect</button>
+            </form>
+        </div>
+
+        <p id="error" class="error"></p>
+    </div>
+
+    <div id="connected-view" class="view hidden">
+        <div class="header">
+            <h2 class="title-with-logo">
+                <img src="images/logo.png" alt="" class="title-logo">
+                Magnet Station
+            </h2>
+            <button id="refresh-btn" class="icon-btn" title="Refresh">↻</button>
+        </div>
+
+        <div id="downloads-section">
+            <div id="downloads-list">
+                <p class="loading">Loading...</p>
+            </div>
+        </div>
+
+        <div class="connection-info">
+            <span class="connection-text"><span id="connected-user"></span> · <span id="connected-server"></span></span>
+            <div class="connection-buttons">
+                <button id="open-synology-btn" class="icon-btn" title="Open Synology">↗</button>
+                <button id="logout-btn">Disconnect</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

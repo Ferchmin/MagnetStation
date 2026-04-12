@@ -1,4 +1,4 @@
-import { loadSession, saveSession, deleteSession, saveCredentials, loadCredentials } from "./platform.js";
+import { PLATFORM, loadSession, saveSession, deleteSession, saveCredentials, loadCredentials } from "./platform.js";
 
 document.addEventListener('DOMContentLoaded', async () => {
     const loginView = document.getElementById('login-view');
@@ -13,6 +13,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const connectedServer = document.getElementById('connected-server');
     const downloadsList = document.getElementById('downloads-list');
     const qcProgress = document.getElementById('qc-progress');
+
+    // Show donate banner (TODO: restrict to Chrome/Firefox only — Safari version is a paid app)
+    document.getElementById('donate-banner').classList.remove('hidden');
 
     // Tab switching
     document.querySelectorAll('.tab').forEach(tab => {
@@ -230,33 +233,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         return response.data;
     }
 
-    // Build candidate URLs: remote-first (stable), LAN last (fallback for home network)
+    // Build candidate URLs: LAN first (fastest), then remote fallbacks
     function buildCandidateUrls(serverInfo, qcId) {
         const candidates = [];
         const srv = serverInfo.server;
         const service = serverInfo.service;
 
-        // 1. DDNS hostname — stable, works from anywhere
+        // 1. LAN IPs — fastest when on the local network
+        if (srv?.interface) {
+            for (const iface of srv.interface) {
+                if (iface.ip) {
+                    candidates.push(`http://${iface.ip}:5000`);
+                    candidates.push(`https://${iface.ip}:5001`);
+                }
+            }
+        }
+
+        // 2. DDNS hostname — works from anywhere
         if (srv?.ddns) {
             const port = service?.ext_port || 5001;
             candidates.push(`https://${srv.ddns}:${port}`);
         }
 
-        // 2. External IP — works remotely
+        // 3. External IP — remote fallback
         if (srv?.external?.ip) {
             const port = srv.external.port || service?.ext_port || 5001;
             candidates.push(`https://${srv.external.ip}:${port}`);
-        }
-
-        // 3. LAN IPs — fallback for when you're on the local network
-        //    (remote addresses often fail at home due to no NAT hairpin)
-        if (srv?.interface) {
-            for (const iface of srv.interface) {
-                if (iface.ip) {
-                    candidates.push(`https://${iface.ip}:5001`);
-                    candidates.push(`http://${iface.ip}:5000`);
-                }
-            }
         }
 
         return candidates;

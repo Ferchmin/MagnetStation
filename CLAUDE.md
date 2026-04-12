@@ -74,8 +74,8 @@ DownloadStation/
    - Platform detection in `shared/platform.js`
 
 5. **Buy Me a Coffee**
-   - Donate banner in connected view header (Chrome/Firefox only in production)
-   - Currently enabled on all platforms for debugging (TODO: restrict to non-Safari)
+   - Full BMC button image in connected view header (Chrome/Firefox only)
+   - Hidden on Safari since it's a paid App Store app
 
 ## Synology API
 
@@ -139,6 +139,8 @@ The build script inlines `platform.js` into popup.js and background.js (strips `
 - 2FA (code 403) → not supported, show message
 - Connection timeout → 10 second limit
 - User-friendly error messages in popup
+- All Synology API fetches use `cache: 'no-store'` to prevent stale browser cache
+- Seeding/finished tasks force progress to 100% regardless of API transfer counters
 
 ## GitHub
 

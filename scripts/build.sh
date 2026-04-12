@@ -25,7 +25,8 @@ build_chrome() {
     local out="$DIST/chrome"
     rm -rf "$out"
     mkdir -p "$out"
-    cp "$SHARED/popup.html" "$out/"
+    # Strip type="module" since the built JS has no imports
+    sed 's/ type="module"//' "$SHARED/popup.html" > "$out/popup.html"
     cp "$SHARED/popup.css" "$out/"
     cp "$SHARED/content.js" "$out/"
     cp -r "$SHARED/_locales" "$out/"
@@ -41,7 +42,8 @@ build_firefox() {
     local out="$DIST/firefox"
     rm -rf "$out"
     mkdir -p "$out"
-    cp "$SHARED/popup.html" "$out/"
+    # Strip type="module" since the built JS has no imports
+    sed 's/ type="module"//' "$SHARED/popup.html" > "$out/popup.html"
     cp "$SHARED/popup.css" "$out/"
     cp "$SHARED/content.js" "$out/"
     cp -r "$SHARED/_locales" "$out/"

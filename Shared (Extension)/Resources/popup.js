@@ -439,7 +439,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const url = `${synologyUrl}/webapi/DownloadStation/task.cgi?api=SYNO.DownloadStation.Task&version=1&method=list&additional=transfer,detail`;
             const controller = new AbortController();
             const timeout = setTimeout(() => controller.abort(), 10000);
-            const response = await fetch(`${url}&_sid=${sid}`, { signal: controller.signal });
+            const response = await fetch(`${url}&_sid=${sid}`, { signal: controller.signal, cache: 'no-store' });
             clearTimeout(timeout);
             const data = await response.json();
 
@@ -484,7 +484,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const testUrl = `${candidate}/webapi/DownloadStation/task.cgi?api=SYNO.DownloadStation.Task&version=1&method=list&additional=transfer,detail&_sid=${sid}`;
                     const controller = new AbortController();
                     const timeout = setTimeout(() => controller.abort(), 5000);
-                    const response = await fetch(testUrl, { signal: controller.signal });
+                    const response = await fetch(testUrl, { signal: controller.signal, cache: 'no-store' });
                     clearTimeout(timeout);
                     const data = await response.json();
 
@@ -508,7 +508,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const testUrl = `${relayUrl}/webapi/DownloadStation/task.cgi?api=SYNO.DownloadStation.Task&version=1&method=list&additional=transfer,detail&_sid=${sid}`;
                     const controller = new AbortController();
                     const timeout = setTimeout(() => controller.abort(), 10000);
-                    const response = await fetch(testUrl, { signal: controller.signal });
+                    const response = await fetch(testUrl, { signal: controller.signal, cache: 'no-store' });
                     clearTimeout(timeout);
                     const data = await response.json();
 
@@ -547,7 +547,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             const status = task.status;
             const size = task.size || 0;
             const downloaded = task.additional?.transfer?.size_downloaded || 0;
-            const progress = size > 0 ? Math.round((downloaded / size) * 100) : 0;
+            const isComplete = status === 'finished' || status === 'seeding';
+            const progress = isComplete ? 100 : (size > 0 ? Math.round((downloaded / size) * 100) : 0);
             const speed = task.additional?.transfer?.speed_download || 0;
 
             let progressClass = '';
@@ -621,7 +622,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!stored.synologyUrl || !stored.sid) return;
 
             const url = `${stored.synologyUrl}/webapi/DownloadStation/task.cgi?api=SYNO.DownloadStation.Task&version=1&method=delete&id=${encodeURIComponent(taskId)}&_sid=${stored.sid}`;
-            const response = await fetch(url);
+            const response = await fetch(url, { cache: 'no-store' });
             const data = await response.json();
 
             if (data.success) {

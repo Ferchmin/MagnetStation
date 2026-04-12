@@ -466,13 +466,12 @@ button:disabled {
 /* Donate banner */
 .donate-banner {
     margin-left: auto;
-    padding: 4px;
-    border-radius: var(--radius-sm);
+    margin-right: 8px;
     transition: opacity var(--transition);
 }
 
 .donate-banner:hover {
-    opacity: 0.75;
+    opacity: 0.85;
 }
 
 .donate-banner.hidden {
@@ -481,9 +480,8 @@ button:disabled {
 
 .donate-banner img {
     display: block;
-    width: 24px;
-    height: 24px;
-    border-radius: 5px;
+    height: 28px;
+    border-radius: 6px;
 }
 
 /* Dark mode */

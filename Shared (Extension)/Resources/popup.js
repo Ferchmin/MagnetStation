@@ -97,8 +97,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const downloadsList = document.getElementById('downloads-list');
     const qcProgress = document.getElementById('qc-progress');
 
-    // Show donate banner (TODO: restrict to Chrome/Firefox only — Safari version is a paid app)
-    document.getElementById('donate-banner').classList.remove('hidden');
+    // Donate banner is Chrome/Firefox only (Safari version is a paid app)
 
     // Tab switching
     document.querySelectorAll('.tab').forEach(tab => {
